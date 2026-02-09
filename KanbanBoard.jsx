@@ -143,7 +143,7 @@ const Column = ({ title, id, items, onDrop, onDragOver, onDragStart, count }) =>
           <RepoCard key={item.id} item={item} onDragStart={onDragStart} />
         ))}
         {items.length === 0 && (
-          <div className="h-24 border-2 border-dashed border-slate-800 rounded-lg flex items-center justify-center text-slate-600 text-sm">
+          <div className="min-h-[96px] border-2 border-dashed border-slate-800 rounded-lg flex items-center justify-center text-slate-600 text-sm">
             Drop items here
           </div>
         )}
@@ -175,7 +175,14 @@ export default function App() {
 
   const handleDragStart = (e, item) => {
     setDraggedItem(item);
-    e.dataTransfer.effectAllowed = 'move';
+    if (e.dataTransfer) {
+      try {
+        e.dataTransfer.setData('application/json', JSON.stringify(item));
+      } catch {
+        // Safari requires data to start drag; swallow errors silently
+      }
+      e.dataTransfer.effectAllowed = 'move';
+    }
   };
 
   const handleDragOver = (e) => {
@@ -183,26 +190,29 @@ export default function App() {
     e.dataTransfer.dropEffect = 'move';
   };
 
+  const moveItemToColumn = (item, targetColId) => {
+    setColumns((prev) => {
+      const withoutItem = {
+        todo: prev.todo.filter(i => i.id !== item.id),
+        inProgress: prev.inProgress.filter(i => i.id !== item.id),
+        done: prev.done.filter(i => i.id !== item.id),
+      };
+
+      if (targetColId === 'todo' && item.isPriority) {
+        return { ...withoutItem, [targetColId]: [item, ...withoutItem[targetColId]] };
+      }
+
+      return { ...withoutItem, [targetColId]: [...withoutItem[targetColId], item] };
+    });
+  };
+
   const handleDrop = (e, targetColId) => {
     e.preventDefault();
-    if (!draggedItem) return;
+    const payload = e.dataTransfer?.getData('application/json');
+    const item = draggedItem || (payload ? JSON.parse(payload) : null);
+    if (!item) return;
 
-    // Remove from all columns
-    const newColumns = {
-      todo: columns.todo.filter(i => i.id !== draggedItem.id),
-      inProgress: columns.inProgress.filter(i => i.id !== draggedItem.id),
-      done: columns.done.filter(i => i.id !== draggedItem.id),
-    };
-
-    // Add to target column (at top if priority, otherwise bottom)
-    // Actually for Kanban, usually drop at bottom, but user wants to tackle priorities
-    if (targetColId === 'todo' && draggedItem.isPriority) {
-      newColumns[targetColId] = [draggedItem, ...newColumns[targetColId]];
-    } else {
-      newColumns[targetColId] = [...newColumns[targetColId], draggedItem];
-    }
-
-    setColumns(newColumns);
+    moveItemToColumn(item, targetColId);
     setDraggedItem(null);
   };
 
@@ -260,29 +270,41 @@ export default function App() {
         if (trimLine.startsWith('## To Explore')) currentCol = 'todo';
         else if (trimLine.startsWith('## In Progress')) currentCol = 'inProgress';
         else if (trimLine.startsWith('## Done')) currentCol = 'done';
-        else if (currentCol && trimLine.startsWith('- [ ] [')) {
-          // Parse Markdown Link: - [ ] [Name](Url) - Desc
-          const match = trimLine.match(/\[(.*?)\]\((.*?)\)\s*-\s*(.*)/);
-          if (match) {
-            const name = match[1];
-            const url = match[2];
-            const rest = match[3]; // Description + tags
+        if (currentCol) {
+          // Robustly sanitize leading checkboxes (even double/triple ones)
+          const sanitizedLine = trimLine.replace(/^(\s*)(?:-\s*\[\s*[ xX]?\s*\]\s*)+/gm, '$1- [ ] ');
 
-            // Extract metadata if possible, otherwise use reasonable defaults
-            const isPriority = rest.includes('#priority/high');
-            const description = rest.split('#')[0].trim(); // simple strip tags
+          if (sanitizedLine.startsWith('- [ ] [')) {
+            // Remove the single remaining checkbox for matching
+            const normalizedLine = sanitizedLine.replace(/^- \[[ xX]\]\s*/, '');
+            // Parse Markdown Link: [Name](Url) - Desc
+            const match = normalizedLine.match(/\[(.*?)\]\((.*?)\)\s*-\s*(.*)/);
+            if (match) {
+              const name = match[1];
+              const url = match[2];
+              const rest = match[3]; // Description + tags
 
-            newCols[currentCol].push({
-              id: `imported-${Math.random().toString(36).substr(2, 9)}`,
-              name,
-              url,
-              description,
-              stars: 0, // Metadata lost in basic markdown unless we serialize json into it
-              updated: 0,
-              language: 'N/A', // Would need smarter parsing to recover these
-              category: 'Imported',
-              isPriority
-            });
+              // Extract metadata if possible, otherwise use reasonable defaults
+              const isPriority = /#priority\/high/i.test(rest);
+              const langTag = rest.match(/#lang\/([a-z0-9+\-]+)/i);
+              const language = langTag ? langTag[1].toUpperCase().replace(/\+/g, '+') : 'N/A';
+              const description = rest
+                .replace(/#lang\/[^\s]+/ig, '')
+                .replace(/#priority\/high/ig, '')
+                .trim();
+
+              newCols[currentCol].push({
+                id: `imported-${Math.random().toString(36).substr(2, 9)}`,
+                name,
+                url,
+                description,
+                stars: 0, // Metadata lost in basic markdown unless we serialize json into it
+                updated: 0,
+                language,
+                category: 'Imported',
+                isPriority
+              });
+            }
           }
         }
       });

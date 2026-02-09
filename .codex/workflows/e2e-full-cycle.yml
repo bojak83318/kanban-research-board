@@ -44,7 +44,7 @@ steps:
     
   - name: Generate Page Object
     action: codex_exec
-    model: gpt-5.1-codex-max # Deep reasoning for robust selector strategies
+    model: gpt-5.3-codex # High reasoning for robust selector strategies
     prompt: |
       Create a robust Page Object Model for the Kanban board with:
       - Selectors using data-testid attributes (add to React components)
@@ -66,7 +66,7 @@ steps:
   - name: Analyze Failures
     action: codex_exec
     condition: on_failure
-    model: gpt-5.1-codex-max # Superior debugging + root cause identification
+    model: gpt-5.3-codex # Efficient debugging + root cause identification
     prompt: |
       Analyze the test results and suggest fixes:
       

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { KanbanPage } from './pages/KanbanPage';
 
 test.use({
-  baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
+  baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173'
 });
 
 test.describe('Kanban Priority Sorting and Visuals', () => {

@@ -65,6 +65,13 @@ VERIFICATION:
 - [how to verify success, e.g., "npm test passes"]
 ```
 
+## Rules & Constraints
+
+### 1. Package File Management
+- **Rule**: `package.json` and `package-lock.json` are RESTRICTED files.
+- **Action**: Do NOT include these files in LLM context windows or automated edits unless explicitly requested.
+- **Reasoning**: To prevent token bloat and accidental dependency corruption. Use `npm` CLI for all package management.
+
 ### Step 3: Execute on Crostini
 
 // turbo

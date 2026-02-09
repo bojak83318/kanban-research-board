@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { KanbanPage } from './pages/KanbanPage';
 
 test.use({
-  baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
+  baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173'
 });
 
 test.describe('Kanban Drag/Drop and Responsive Behavior', () => {
@@ -39,14 +39,15 @@ test.describe('Kanban Drag/Drop and Responsive Behavior', () => {
     const kanban = new KanbanPage(page);
     await kanban.goto();
 
-    await kanban.moveCardToColumn('awesome-claude-skills', 'inProgress');
-    await kanban.moveCardToColumn('awesome-claude-skills', 'done');
-    await kanban.moveCardToColumn('awesome-claude-skills', 'todo');
+    await kanban.moveCardToColumn('Antigravity-Manager', 'inProgress');
+    await kanban.moveCardToColumn('Antigravity-Manager', 'done');
+    await kanban.moveCardToColumn('Antigravity-Manager', 'todo');
 
-    const card = kanban.cardInColumn('awesome-claude-skills', 'todo');
-    await expect(card).toContainText('awesome-claude-skills');
-    await expect(card).toContainText('Python');
-    await expect(card).toContainText('32.7k');
+    const card = kanban.cardInColumn('Antigravity-Manager', 'todo');
+    await expect(card).toContainText('Antigravity-Manager');
+    await expect(card).toContainText('Rust');
+    await expect(card).toContainText('22.1k');
+    await expect(kanban.priorityIconForCard('Antigravity-Manager')).toBeVisible();
   });
 
   test('TC-004: Drag to invalid zone does not change state', async ({ page }) => {

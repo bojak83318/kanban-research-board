@@ -3,7 +3,7 @@ import { MALFORMED_IMPORT_TEXT, PRIORITY_IMPORT_MD, VALID_OBSIDIAN_IMPORT_MD } f
 import { KanbanPage } from './pages/KanbanPage';
 
 test.use({
-  baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000'
+  baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173'
 });
 
 test.describe('Kanban Import/Export', () => {
@@ -56,12 +56,15 @@ test.describe('Kanban Import/Export', () => {
   test('TC-012: Export generates antigravity-board.md download', async ({ page }) => {
     const kanban = new KanbanPage(page);
     await kanban.goto();
+    await kanban.startMarkdownExportCapture();
 
     const downloadPromise = page.waitForEvent('download');
     await kanban.exportButton().click();
     const download = await downloadPromise;
+    const markdown = await kanban.readCapturedMarkdown();
 
     expect(download.suggestedFilename()).toBe('antigravity-board.md');
+    expect(markdown.startsWith('# Antigravity Tool Research')).toBeTruthy();
   });
 
   test('TC-013: Export keeps checkbox and link formatting', async ({ page }) => {
@@ -76,6 +79,7 @@ test.describe('Kanban Import/Export', () => {
     const markdown = await kanban.readCapturedMarkdown();
 
     expect(markdown).toContain('- [ ] [Foo](http://bar.com)');
+    expect(markdown).toMatch(/^- \[ \] \[.*\]\(http.*\)/m);
   });
 
   test('TC-014: Export includes star values in k-notation', async ({ page }) => {
