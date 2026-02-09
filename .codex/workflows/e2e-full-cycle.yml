@@ -1,0 +1,80 @@
+name: E2E Test Generation and Execution
+trigger: manual
+
+inputs:
+  prd_artifact: ./prd/kanban-e2e.md
+  react_component: ./KanbanBoard.jsx
+
+steps:
+  - name: Generate Test Suite
+    action: codex_exec
+    model: gpt-5.3-codex # Latest model for best Playwright syntax + React 19 patterns
+    temperature: 0.2
+    max_tokens: 8000
+    prompt: |
+      Generate a COMPLETE Playwright test suite from the attached PRD.
+      
+      **CRITICAL Requirements**:
+      1. Use Page Object Model for the Kanban board
+      2. Implement custom drag-drop helper that works across browsers
+      3. Add visual regression tests for priority items (red AlertCircle)
+      4. Mock CSV file operations with proper FileReader simulation
+      5. Test Obsidian markdown export format
+      
+      **Output Structure**:
+      - tests/e2e/pages/KanbanPage.ts (Page Object)
+      - tests/e2e/kanban-dragdrop.spec.ts (Core functionality)
+      - tests/e2e/kanban-import-export.spec.ts (File operations)
+      - tests/e2e/kanban-priority.spec.ts (Priority sorting)
+      - tests/fixtures/sample-data.ts (Test data)
+      
+      **Drag-Drop Implementation**:
+      Use the following battle-tested pattern:
+      ```typescript
+      async function dragAndDrop(page, source, target) {
+        await source.hover();
+        await page.mouse.down();
+        await target.hover();
+        await page.mouse.up();
+        await page.waitForTimeout(500); // React state update
+      }
+      ```
+    
+    output_dir: ./tests/e2e/
+    
+  - name: Generate Page Object
+    action: codex_exec
+    model: gpt-5.1-codex-max # Deep reasoning for robust selector strategies
+    prompt: |
+      Create a robust Page Object Model for the Kanban board with:
+      - Selectors using data-testid attributes (add to React components)
+      - Methods for drag-drop, column counting, priority checking
+      - Type-safe assertions
+      
+      Include React component patches to add data-testid:
+      ```tsx
+      <div data-testid="kanban-column-{id}" ...>
+      <div data-testid="repo-card-{item.id}" ...>
+      ```
+    
+    output: tests/e2e/pages/KanbanPage.ts
+    
+  - name: Execute Tests
+    action: shell
+    command: npx playwright test --reporter=json
+    
+  - name: Analyze Failures
+    action: codex_exec
+    condition: on_failure
+    model: gpt-5.1-codex-max # Superior debugging + root cause identification
+    prompt: |
+      Analyze the test results and suggest fixes:
+      
+      Test Results: {{ file:test-results.json }}
+      
+      Focus on:
+      - Timing issues in drag-drop
+      - Selector mismatches
+      - Race conditions in React state updates
+    
+    output: ./test-analysis.md

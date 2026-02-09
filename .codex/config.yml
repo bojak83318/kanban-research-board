@@ -1,0 +1,8 @@
+default_model: gpt-5.3-codex
+
+model_overrides:
+  e2e_generation: gpt-5.3-codex       # Initial test suite generation
+  page_object: gpt-5.1-codex-max      # Robust selector strategies
+  failure_analysis: gpt-5.1-codex-max # Deep debugging & root cause
+  quick_fixes: gpt-5.1-codex-mini     # Simple selector updates
+  visual_regression: gpt-5.2-codex    # Snapshot configuration

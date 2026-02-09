@@ -1,0 +1,23 @@
+name: Generate E2E Tests
+trigger: manual
+steps:
+  - name: Parse PRD
+    action: read_artifact
+    source: prd/kanban-e2e.md
+  
+  - name: Generate Playwright Tests
+    action: codex_exec
+    prompt: |
+      Based on the attached PRD, generate production-grade Playwright tests for:
+      - Drag-and-drop simulation using `dataTransfer` API
+      - CSV upload/download verification
+      - Priority sorting validation (red AlertCircle icon presence)
+      - Markdown export structure testing
+      
+      Requirements:
+      - Use Page Object Model pattern
+      - Include visual regression with @playwright/test snapshots
+      - Add retry logic for flaky drag-drop interactions
+      - Mock file upload/download with fixtures
+    
+    output: tests/e2e/kanban.spec.ts
