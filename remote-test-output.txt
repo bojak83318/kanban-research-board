@@ -1,0 +1,204 @@
+
+Running 9 tests using 4 workers
+
+  ✘  1 [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote (4ms)
+  ✘  4 [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote (3ms)
+  ✘  3 [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote (5ms)
+  ✘  2 [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling (4ms)
+  ✘  5 [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling (2ms)
+  ✘  6 [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote (3ms)
+  ✘  8 [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote (6ms)
+  ✘  7 [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote (6ms)
+  ✘  9 [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling (2ms)
+
+
+  1) [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-8671a-1-Successful-Push-to-Remote-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-8671a-1-Successful-Push-to-Remote-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-51804-Successful-Pull-from-Remote-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-51804-Successful-Pull-from-Remote-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/chromium_headless_shell-1208/chrome-headless-shell-linux64/chrome-headless-shell
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-61b6f-C-023-Remote-Error-Handling-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-61b6f-C-023-Remote-Error-Handling-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/webkit-2248/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-8671a-1-Successful-Push-to-Remote-webkit-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-8671a-1-Successful-Push-to-Remote-webkit-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/webkit-2248/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-51804-Successful-Pull-from-Remote-webkit-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-51804-Successful-Pull-from-Remote-webkit-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/webkit-2248/pw_run.sh
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-61b6f-C-023-Remote-Error-Handling-webkit-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-61b6f-C-023-Remote-Error-Handling-webkit-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/firefox-1509/firefox/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-8671a-1-Successful-Push-to-Remote-firefox-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-8671a-1-Successful-Push-to-Remote-firefox-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/firefox-1509/firefox/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-51804-Successful-Pull-from-Remote-firefox-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-51804-Successful-Pull-from-Remote-firefox-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling 
+
+    Error: browserType.launch: Executable doesn't exist at /home/rocm/.cache/ms-playwright/firefox-1509/firefox/firefox
+    ╔═════════════════════════════════════════════════════════════════════════╗
+    ║ Looks like Playwright Test or Playwright was just installed or updated. ║
+    ║ Please run the following command to download new browsers:              ║
+    ║                                                                         ║
+    ║     npx playwright install                                              ║
+    ║                                                                         ║
+    ║ <3 Playwright Team                                                      ║
+    ╚═════════════════════════════════════════════════════════════════════════╝
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/kanban-remote-Kanban-Remot-61b6f-C-023-Remote-Error-Handling-firefox-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/kanban-remote-Kanban-Remot-61b6f-C-023-Remote-Error-Handling-firefox-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9 failed
+    [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote 
+    [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote 
+    [chromium-desktop] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling 
+    [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote 
+    [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote 
+    [webkit-mobile] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling 
+    [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:12:5 › Kanban Remote Sync › TC-021: Successful Push to Remote 
+    [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:26:5 › Kanban Remote Sync › TC-022: Successful Pull from Remote 
+    [firefox-desktop] › tests/e2e/kanban-remote.spec.ts:54:5 › Kanban Remote Sync › TC-023: Remote Error Handling 

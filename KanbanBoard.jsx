@@ -9,11 +9,16 @@ import {
   AlertCircle,
   Search,
   Layout,
-  Tag
+  Tag,
+  RefreshCw,
+  CloudUpload,
+  CloudDownload
 } from 'lucide-react';
-import { parseCSV } from './csvParsing';
 
 // --- Constants & Utilities ---
+
+// Point this to your Docker Container's API endpoint
+const DOCKER_API_URL = 'http://localhost:8000/api/obsidian/sync';
 
 const COLORS = {
   Python: 'bg-blue-600',
@@ -57,6 +62,101 @@ open-antigravity,https://github.com/ishandutta2007/open-antigravity,228,0,JavaSc
 antigravity-ide,https://github.com/Dokhacgiakhoa/antigravity-ide,194,0,Python,CLI Tool,Google AntiGravity IDE for Vibe Coding CLI tool
 CodeFreeMax,https://github.com/ssmDo/CodeFreeMax,145,0,Shell,API Proxy,"Convert Kiro, Antigravity, Warp, Orchids, Grok IDEs to OpenAI/Claude/Augment Code API format"`;
 
+// Keywords to auto-detect user priorities
+const PRIORITY_KEYWORDS = ['proxy', 'manager', 'account', 'rotation', 'switch', 'auth'];
+
+// --- Data Parsing Functions ---
+
+const parseCSV = (csvText) => {
+  const lines = csvText.trim().split('\n');
+  const headers = lines[0].split(',');
+  const items = [];
+
+  // Simple CSV parser that handles quoted strings
+  for (let i = 1; i < lines.length; i++) {
+    let line = lines[i];
+    const row = [];
+    let inQuotes = false;
+    let currentVal = '';
+
+    for (let char of line) {
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        row.push(currentVal);
+        currentVal = '';
+      } else {
+        currentVal += char;
+      }
+    }
+    row.push(currentVal);
+
+    if (row.length < 5) continue;
+
+    // Check for priority keywords
+    const desc = row[6] ? row[6].toLowerCase() : '';
+    const title = row[0].toLowerCase();
+    const isPriority = PRIORITY_KEYWORDS.some(k => desc.includes(k) || title.includes(k));
+
+    items.push({
+      id: `repo-${i}`,
+      name: row[0],
+      url: row[1],
+      stars: parseInt(row[2]) || 0,
+      updated: parseInt(row[3]) || 0,
+      language: row[4],
+      category: row[5],
+      description: row[6].replace(/^"|"$/g, ''), // Remove wrapping quotes
+      isPriority: isPriority
+    });
+  }
+
+  // Sort: Priority items first, then by stars
+  return items.sort((a, b) => {
+    if (a.isPriority && !b.isPriority) return -1;
+    if (!a.isPriority && b.isPriority) return 1;
+    return b.stars - a.stars;
+  });
+};
+
+const parseMarkdownContent = (text) => {
+  const lines = text.split('\n');
+  const newCols = { todo: [], inProgress: [], done: [] };
+  let currentCol = null;
+
+  lines.forEach(line => {
+    const trimLine = line.trim();
+    if (trimLine.startsWith('## To Explore')) currentCol = 'todo';
+    else if (trimLine.startsWith('## In Progress')) currentCol = 'inProgress';
+    else if (trimLine.startsWith('## Done')) currentCol = 'done';
+    else if (currentCol && trimLine.startsWith('- [ ] [')) {
+      // Parse Markdown Link: - [ ] [Name](Url) - Desc
+      const match = trimLine.match(/\[(.*?)\]\((.*?)\)\s*-\s*(.*)/);
+      if (match) {
+        const name = match[1];
+        const url = match[2];
+        const rest = match[3]; // Description + tags
+
+        const isPriority = rest.includes('#priority/high');
+        const description = rest.split('#')[0].trim();
+
+        newCols[currentCol].push({
+          id: `imported-${Math.random().toString(36).substr(2, 9)}`,
+          name,
+          url,
+          description,
+          stars: 0,
+          updated: 0,
+          language: 'N/A',
+          category: 'Imported',
+          isPriority
+        });
+      }
+    }
+  });
+  return newCols;
+};
+
 // --- Components ---
 
 const RepoCard = ({ item, onDragStart }) => {
@@ -67,14 +167,14 @@ const RepoCard = ({ item, onDragStart }) => {
       draggable
       onDragStart={(e) => onDragStart(e, item)}
       className="bg-slate-800 p-4 rounded-lg shadow-sm border border-slate-700 cursor-move hover:border-slate-500 transition-all group relative"
-      data-testid={`repo-card-${item.id}`} // Added for E2E testing
+      data-testid={`repo-card-${item.id}`}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-semibold text-slate-100 text-sm leading-tight pr-6 break-words" data-testid="card-title">
+        <h3 className="font-semibold text-slate-100 text-sm leading-tight pr-6 break-words">
           {item.name}
         </h3>
         {item.isPriority && (
-          <span className="absolute top-3 right-3 text-red-400" title="High Priority: Matches Proxy/Auth/Rotation" data-testid="priority-icon">
+          <span className="absolute top-3 right-3 text-red-400" title="High Priority: Matches Proxy/Auth/Rotation">
             <AlertCircle size={16} />
           </span>
         )}
@@ -122,15 +222,12 @@ const Column = ({ title, id, items, onDrop, onDragOver, onDragStart, count }) =>
       className="flex-1 min-w-[300px] flex flex-col h-full bg-slate-900/50 rounded-xl border border-slate-800/50 overflow-hidden"
       onDrop={(e) => onDrop(e, id)}
       onDragOver={onDragOver}
-      data-testid={`kanban-column-${id}`} // Added for E2E testing
+      data-testid={`kanban-column-${id}`}
     >
       <div className="p-4 border-b border-slate-800 bg-slate-900 sticky top-0 z-10 flex justify-between items-center">
         <h2 className="font-bold text-slate-200 flex items-center gap-2">
           {title}
-          <span
-            className="bg-slate-800 text-slate-400 text-xs px-2 py-0.5 rounded-full border border-slate-700"
-            data-testid={`column-count-${id}`}
-          >
+          <span className="bg-slate-800 text-slate-400 text-xs px-2 py-0.5 rounded-full border border-slate-700" data-testid={`column-count-${id}`}>
             {count}
           </span>
         </h2>
@@ -143,7 +240,7 @@ const Column = ({ title, id, items, onDrop, onDragOver, onDragStart, count }) =>
           <RepoCard key={item.id} item={item} onDragStart={onDragStart} />
         ))}
         {items.length === 0 && (
-          <div className="min-h-[96px] border-2 border-dashed border-slate-800 rounded-lg flex items-center justify-center text-slate-600 text-sm">
+          <div className="h-24 border-2 border-dashed border-slate-800 rounded-lg flex items-center justify-center text-slate-600 text-sm">
             Drop items here
           </div>
         )}
@@ -162,27 +259,20 @@ export default function App() {
     done: []
   });
   const [draggedItem, setDraggedItem] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncStatus, setSyncStatus] = useState('');
 
   // Initialization
   useEffect(() => {
     const items = parseCSV(INITIAL_CSV);
     setColumns(prev => ({ ...prev, todo: items }));
-    setIsLoading(false);
   }, []);
 
   // --- Handlers ---
 
   const handleDragStart = (e, item) => {
     setDraggedItem(item);
-    if (e.dataTransfer) {
-      try {
-        e.dataTransfer.setData('application/json', JSON.stringify(item));
-      } catch {
-        // Safari requires data to start drag; swallow errors silently
-      }
-      e.dataTransfer.effectAllowed = 'move';
-    }
+    e.dataTransfer.effectAllowed = 'move';
   };
 
   const handleDragOver = (e) => {
@@ -190,39 +280,32 @@ export default function App() {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const moveItemToColumn = (item, targetColId) => {
-    setColumns((prev) => {
-      const withoutItem = {
-        todo: prev.todo.filter(i => i.id !== item.id),
-        inProgress: prev.inProgress.filter(i => i.id !== item.id),
-        done: prev.done.filter(i => i.id !== item.id),
-      };
-
-      if (targetColId === 'todo' && item.isPriority) {
-        return { ...withoutItem, [targetColId]: [item, ...withoutItem[targetColId]] };
-      }
-
-      return { ...withoutItem, [targetColId]: [...withoutItem[targetColId], item] };
-    });
-  };
-
   const handleDrop = (e, targetColId) => {
     e.preventDefault();
-    const payload = e.dataTransfer?.getData('application/json');
-    const item = draggedItem || (payload ? JSON.parse(payload) : null);
-    if (!item) return;
+    if (!draggedItem) return;
 
-    moveItemToColumn(item, targetColId);
+    const newColumns = {
+      todo: columns.todo.filter(i => i.id !== draggedItem.id),
+      inProgress: columns.inProgress.filter(i => i.id !== draggedItem.id),
+      done: columns.done.filter(i => i.id !== draggedItem.id),
+    };
+
+    if (targetColId === 'todo' && draggedItem.isPriority) {
+      newColumns[targetColId] = [draggedItem, ...newColumns[targetColId]];
+    } else {
+      newColumns[targetColId] = [...newColumns[targetColId], draggedItem];
+    }
+
+    setColumns(newColumns);
     setDraggedItem(null);
   };
 
-  // --- Obsidian Integration ---
+  // --- Markdown Generation ---
 
   const generateMarkdown = () => {
     const formatDate = new Date().toISOString().split('T')[0];
     let md = `# Antigravity Tool Research - ${formatDate}\n\n`;
 
-    // Helper to render items
     const renderList = (items) => {
       if (!items.length) return '';
       return items.map(item => {
@@ -240,7 +323,9 @@ export default function App() {
     return md;
   };
 
-  const handleExport = () => {
+  // --- File Integration ---
+
+  const handleExportFile = () => {
     const md = generateMarkdown();
     const blob = new Blob([md], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
@@ -253,73 +338,67 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
-  const handleImport = (e) => {
+  const handleImportFile = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target.result;
-      const lines = text.split('\n');
-
-      const newCols = { todo: [], inProgress: [], done: [] };
-      let currentCol = null;
-
-      lines.forEach(line => {
-        const trimLine = line.trim();
-        if (trimLine.startsWith('## To Explore')) currentCol = 'todo';
-        else if (trimLine.startsWith('## In Progress')) currentCol = 'inProgress';
-        else if (trimLine.startsWith('## Done')) currentCol = 'done';
-        if (currentCol) {
-          // Robustly sanitize leading checkboxes (even double/triple ones)
-          const sanitizedLine = trimLine.replace(/^(\s*)(?:-\s*\[\s*[ xX]?\s*\]\s*)+/gm, '$1- [ ] ');
-
-          if (sanitizedLine.startsWith('- [ ] [')) {
-            // Remove the single remaining checkbox for matching
-            const normalizedLine = sanitizedLine.replace(/^- \[[ xX]\]\s*/, '');
-            // Parse Markdown Link: [Name](Url) - Desc
-            const match = normalizedLine.match(/\[(.*?)\]\((.*?)\)\s*-\s*(.*)/);
-            if (match) {
-              const name = match[1];
-              const url = match[2];
-              const rest = match[3]; // Description + tags
-
-              // Extract metadata if possible, otherwise use reasonable defaults
-              const isPriority = /#priority\/high/i.test(rest);
-              const langTag = rest.match(/#lang\/([a-z0-9+\-]+)/i);
-              const language = langTag ? langTag[1].toUpperCase().replace(/\+/g, '+') : 'N/A';
-              const description = rest
-                .replace(/#lang\/[^\s]+/ig, '')
-                .replace(/#priority\/high/ig, '')
-                .trim();
-
-              newCols[currentCol].push({
-                id: `imported-${Math.random().toString(36).substr(2, 9)}`,
-                name,
-                url,
-                description,
-                stars: 0, // Metadata lost in basic markdown unless we serialize json into it
-                updated: 0,
-                language,
-                category: 'Imported',
-                isPriority
-              });
-            }
-          }
-        }
-      });
-
-      if (confirm('This will replace your current board. Continue?')) {
+      const newCols = parseMarkdownContent(text);
+      if (confirm('Replace board with imported file?')) {
         setColumns(newCols);
       }
     };
     reader.readAsText(file);
   };
 
+  // --- Remote Docker Sync ---
+
+  const pushToRemote = async () => {
+    setIsSyncing(true);
+    setSyncStatus('Pushing...');
+    try {
+      const md = generateMarkdown();
+      const response = await fetch(DOCKER_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/markdown' },
+        body: md
+      });
+      if (!response.ok) throw new Error('Remote rejected request');
+      setSyncStatus('Synced!');
+      setTimeout(() => setSyncStatus(''), 2000);
+    } catch (err) {
+      console.error(err);
+      setSyncStatus('Failed (See Console)');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  const pullFromRemote = async () => {
+    setIsSyncing(true);
+    setSyncStatus('Pulling...');
+    try {
+      const response = await fetch(DOCKER_API_URL);
+      if (!response.ok) throw new Error('Remote unavailble');
+      const text = await response.text();
+      const newCols = parseMarkdownContent(text);
+      setColumns(newCols);
+      setSyncStatus('Updated!');
+      setTimeout(() => setSyncStatus(''), 2000);
+    } catch (err) {
+      console.error(err);
+      setSyncStatus('Failed (See Console)');
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">
       {/* Header */}
-      <header className="border-b border-slate-800 bg-slate-900 px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="border-b border-slate-800 bg-slate-900 px-6 py-4 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2 text-white">
             <Layout className="text-blue-500" />
@@ -330,19 +409,44 @@ export default function App() {
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3 items-center">
+          {/* Remote Sync Controls */}
+          <div className="flex items-center gap-1 bg-slate-800 p-1 rounded-lg border border-slate-700 mr-2">
+            <span className="text-xs text-slate-500 font-mono px-2 uppercase tracking-wide">Remote Docker</span>
+            <button
+              onClick={pushToRemote}
+              disabled={isSyncing}
+              title="Push to Docker Obsidian"
+              className="p-2 hover:bg-slate-700 rounded text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              <CloudUpload size={18} />
+            </button>
+            <button
+              onClick={pullFromRemote}
+              disabled={isSyncing}
+              title="Pull from Docker Obsidian"
+              className="p-2 hover:bg-slate-700 rounded text-green-400 hover:text-green-300 transition-colors"
+            >
+              <CloudDownload size={18} />
+            </button>
+            {syncStatus && <span className="text-xs px-2 text-slate-300 animate-fade-in">{syncStatus}</span>}
+          </div>
+
+          <div className="h-6 w-px bg-slate-700 mx-1 hidden md:block"></div>
+
+          {/* Local File Controls */}
           <label className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-700 cursor-pointer text-sm font-medium transition-colors">
             <Upload size={16} className="text-slate-400" />
-            Import Obsidian
-            <input type="file" accept=".md" onChange={handleImport} className="hidden" />
+            Import .md
+            <input type="file" accept=".md" onChange={handleImportFile} className="hidden" />
           </label>
 
           <button
-            onClick={handleExport}
+            onClick={handleExportFile}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-blue-900/20 transition-all active:scale-95"
           >
             <Download size={16} />
-            Export to Obsidian
+            Export .md
           </button>
         </div>
       </header>
@@ -394,6 +498,13 @@ export default function App() {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
           background: rgba(100, 116, 139, 1);
+        }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
         }
       `}</style>
     </div>
